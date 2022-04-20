@@ -51,9 +51,10 @@ class EventHandler():
         self.enemy_count = 0
         self.dead_enemy_count = 0
         self.battle = False
+        self.enemy_generation = pygame.USEREVENT + 2
 
     #create main menu
-    def stage_handler(self):
+    def level_handler(self):
         self.root = Tk()
         self.root.geometry("250x300+820+370")
         
@@ -89,12 +90,24 @@ class EventHandler():
             
     def level1(self):
         self.root.destroy()
+        pygame.time.set_timer(self.enemy_generation, 2000)
+        self.level = 1
+        self.level_enemies = 6
+        self.enemy_count = 0
 
     def level2(self):
         self.root.destroy()
+        pygame.time.set_timer(self.enemy_generation, 2000)
+        self.level = 2
+        self.level_enemies = 12
+        self.enemy_count = 0
 
     def level3(self):
         self.root.destroy()
+        pygame.time.set_timer(self.enemy_generation, 2000)
+        self.level = 3
+        self.level_enemies = 20
+        self.enemy_count = 0
 
 #create background
 class Background(pygame.sprite.Sprite):
@@ -122,15 +135,21 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load("Player_Sprite_R.png")
         self.rect = self.image.get_rect()
 
+        #position and direction
         self.pos = vec((340, 240))
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
         self.direction = "R"
+
+        #movement
         self.jumping = False
         self.running = False
         self.move_frame = 0
+
+        #combat
         self.attacking = False
         self.attack_frame = 0
+        self.cooldown = False
     
     def move(self):
         #add gravity so that player can touch the ground
@@ -224,7 +243,13 @@ class Player(pygame.sprite.Sprite):
                     self.pos.y = hits[0].rect.top + 1
                     self.vel.y = 0
                     self.jumping = False
-
+    
+    def player_hit(self):
+        if self.cooldown == False:
+            self.cooldown = True
+            pygame.time.set_timer(hit_cooldown, 1000)
+            pygame.display.update()
+    
     def render(self):
         displaysurface.blit(self.image, self.rect)
 
@@ -237,7 +262,7 @@ class Enemy(pygame.sprite.Sprite):
         self.pos = vec(0, 0)
         self.vel = vec(0, 0)
         self.direction = random.randint(0, 1)
-        self.vel.x = random.randint(2, 4) / 2
+        self.vel.x = random.randint(1, 5) / 2
 
         #sets the initial position of the enemy
         if self.direction == 0:
@@ -260,19 +285,35 @@ class Enemy(pygame.sprite.Sprite):
         if self.direction == 1:
             self.pos.x -= self.vel.x
         self.rect.topleft = self.pos
-    
+
+    def update(self):
+        hits = pygame.sprite.spritecollide(self, player_group, False)
+        #check if collision with player
+        if hits and player.attacking == True:
+            self.kill()
+        elif hits and player.attacking == False:
+            player.player_hit()
+
     def render(self):
         #display enemy on screen
         displaysurface.blit(self.image, self.rect)
 
 handler = EventHandler()
-handler.stage_handler()
+handler.level_handler()
+
 background = Background()
 ground = Ground()
 ground_group = pygame.sprite.Group()
 ground_group.add(ground)
+
 player = Player()
+player_group = pygame.sprite.Group()
+player_group.add(player)
+
 enemy = Enemy()
+enemy_group = pygame.sprite.Group()
+
+hit_cooldown = pygame.USEREVENT + 1
 
 while 1:
     player.gravity_check()
@@ -281,6 +322,13 @@ while 1:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
+
+        #generate enemy
+        if event.type == handler.enemy_generation:
+            if handler.enemy_count < handler.level_enemies:
+                enemy = Enemy()
+                enemy_group.add(enemy)
+                handler.enemy_count += 1
         
         # event handling for a range of different key presses
         if event.type == pygame.KEYDOWN:
@@ -291,6 +339,11 @@ while 1:
                     player.attack()
                     player.attacking = True
         
+        #resets the cooldown
+        if event.type == hit_cooldown:
+            player.cooldown = False
+            pygame.time.set_timer(hit_cooldown, 0)
+        
     background.render()
     ground.render()
 
@@ -300,8 +353,10 @@ while 1:
     player.move()
     player.render()
     
-    enemy.move()
-    enemy.render()
+    for entity in enemy_group:
+        enemy.update()
+        enemy.move()
+        enemy.render()
 
     pygame.display.update()
     FPS.tick(60)
