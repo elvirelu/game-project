@@ -317,7 +317,11 @@ hit_cooldown = pygame.USEREVENT + 1
 
 while 1:
     player.gravity_check()
+
     for event in pygame.event.get():
+        if event.type == hit_cooldown:
+            player.cooldown = False
+
         # quit when the close window button is clicked
         if event.type == QUIT:
             pygame.quit()
@@ -354,9 +358,9 @@ while 1:
     player.render()
     
     for entity in enemy_group:
-        enemy.update()
-        enemy.move()
-        enemy.render()
+        entity.update()
+        entity.move()
+        entity.render()
 
     pygame.display.update()
     FPS.tick(60)
