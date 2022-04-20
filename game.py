@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 from tkinter import *
 import sys
+import random
 
 pygame.init()
 
@@ -56,22 +57,22 @@ class EventHandler():
         self.root = Tk()
         self.root.geometry("250x300+820+370")
         
-        #get value from radio button (easy, medium and hard mode)
+        #get value from radio button (level1, level2 and level3)
         def select():
             s = var.get()
             if s == 1:
-                self.easy_mode()
+                self.level1()
             if s == 2:
-                self.medium_mode()
+                self.level2()
             if s == 3:            
-                self.hard_mode()
+                self.level3()
         var = IntVar()
         #create label, radio button and game start quit button
         label1 = Label(self.root, text=" Dungeon Game ", font=("Arial", 25))
-        label2 = Label(self.root, text="Select Game Mode", font=("Arial", 15))
-        rbouton1 = Radiobutton(self.root, text="Easy", font=("Arial", 12), value=1, variable=var, indicatoron=0, width=20)
-        rbouton2 = Radiobutton(self.root, text="Medium",font=("Arial", 12), value=2, variable=var, indicatoron=0, width=20)
-        rbouton3 = Radiobutton(self.root, text="Hard", font=("Arial", 12), value=3, variable=var, indicatoron=0, width=20)
+        label2 = Label(self.root, text="Select Game Level", font=("Arial", 15))
+        rbouton1 = Radiobutton(self.root, text="Level 1", font=("Arial", 12), value=1, variable=var, indicatoron=0, width=20)
+        rbouton2 = Radiobutton(self.root, text="Level 2",font=("Arial", 12), value=2, variable=var, indicatoron=0, width=20)
+        rbouton3 = Radiobutton(self.root, text="Level 3", font=("Arial", 12), value=3, variable=var, indicatoron=0, width=20)
         label3 = Label(self.root, text="")
         bouton1 = Button(self.root, text="Start", font=("Arial", 15), background="light blue", width=10, command=select)
         bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10, command=quit)
@@ -86,13 +87,13 @@ class EventHandler():
 
         self.root.mainloop()
             
-    def easy_mode(self):
+    def level1(self):
         self.root.destroy()
 
-    def medium_mode(self):
+    def level2(self):
         self.root.destroy()
 
-    def hard_mode(self):
+    def level3(self):
         self.root.destroy()
 
 #create background
@@ -165,6 +166,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.midbottom = self.pos #update rect
 
     def update(self):
+        #reset move frame
         if self.move_frame > 6:
             self.move_frame = 0
 
@@ -199,6 +201,7 @@ class Player(pygame.sprite.Sprite):
             self.image = attack_ani_L[self.attack_frame]
         self.attack_frame += 1
 
+    #correct 2 pics positions
     def correction(self):
         if self.attack_frame == 1:
             self.pos.x -= 20
@@ -210,7 +213,8 @@ class Player(pygame.sprite.Sprite):
         if hits and not self.jumping:
             self.jumping = True
             self.vel.y = -12
-
+    
+    #check if touch the ground, then stop
     def gravity_check(self):
         hits = pygame.sprite.spritecollide(player, ground_group, False)
         if self.vel.y > 0:
@@ -221,18 +225,54 @@ class Player(pygame.sprite.Sprite):
                     self.vel.y = 0
                     self.jumping = False
 
+    def render(self):
+        displaysurface.blit(self.image, self.rect)
+
 #create enemy
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
+        self.image = pygame.image.load("Enemy.png")
+        self.rect = self.image.get_rect()
+        self.pos = vec(0, 0)
+        self.vel = vec(0, 0)
+        self.direction = random.randint(0, 1)
+        self.vel.x = random.randint(2, 4) / 2
 
+        #sets the initial position of the enemy
+        if self.direction == 0:
+            self.pos.x = 0
+            self.pos.y = 235
+        if self.direction == 1:
+            self.pos.x = 700
+            self.pos.y = 235
+    
+    def move(self):
+        #when reach the border of screen, turn the direction
+        if self.pos.x >= (W - 20):
+            self.direction = 1
+        elif self.pos.x <= 0:
+            self.direction = 0
+
+        #update position with new values
+        if self.direction == 0:
+            self.pos.x += self.vel.x
+        if self.direction == 1:
+            self.pos.x -= self.vel.x
+        self.rect.topleft = self.pos
+    
+    def render(self):
+        #display enemy on screen
+        displaysurface.blit(self.image, self.rect)
+
+handler = EventHandler()
+handler.stage_handler()
 background = Background()
 ground = Ground()
 ground_group = pygame.sprite.Group()
 ground_group.add(ground)
 player = Player()
-handler = EventHandler()
-handler.stage_handler()
+enemy = Enemy()
 
 while 1:
     player.gravity_check()
@@ -253,11 +293,15 @@ while 1:
         
     background.render()
     ground.render()
+
     player.update()
     if player.attacking == True:
         player.attack()
     player.move()
-    displaysurface.blit(player.image, player.rect)
+    player.render()
+    
+    enemy.move()
+    enemy.render()
 
     pygame.display.update()
     FPS.tick(60)
