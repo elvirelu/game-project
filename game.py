@@ -29,6 +29,22 @@ run_ani_L = [pygame.image.load("Player_Sprite_L.png"), pygame.image.load("Player
              pygame.image.load("Player_Sprite5_L.png"),pygame.image.load("Player_Sprite6_L.png"),
              pygame.image.load("Player_Sprite_L.png")]
 
+# Attack animation for the RIGHT
+attack_ani_R = [pygame.image.load("Player_Sprite_R.png"), pygame.image.load("Player_Attack_R.png"),
+                pygame.image.load("Player_Attack2_R.png"),pygame.image.load("Player_Attack2_R.png"),
+                pygame.image.load("Player_Attack3_R.png"),pygame.image.load("Player_Attack3_R.png"),
+                pygame.image.load("Player_Attack4_R.png"),pygame.image.load("Player_Attack4_R.png"),
+                pygame.image.load("Player_Attack5_R.png"),pygame.image.load("Player_Attack5_R.png"),
+                pygame.image.load("Player_Sprite_R.png")]
+ 
+# Attack animation for the LEFT
+attack_ani_L = [pygame.image.load("Player_Sprite_L.png"), pygame.image.load("Player_Attack_L.png"),
+                pygame.image.load("Player_Attack2_L.png"),pygame.image.load("Player_Attack2_L.png"),
+                pygame.image.load("Player_Attack3_L.png"),pygame.image.load("Player_Attack3_L.png"),
+                pygame.image.load("Player_Attack4_L.png"),pygame.image.load("Player_Attack4_L.png"),
+                pygame.image.load("Player_Attack5_L.png"),pygame.image.load("Player_Attack5_L.png"),
+                pygame.image.load("Player_Sprite_L.png")]
+
 class EventHandler():
     def __init__(self):
         self.enemy_count = 0
@@ -112,6 +128,8 @@ class Player(pygame.sprite.Sprite):
         self.jumping = False
         self.running = False
         self.move_frame = 0
+        self.attacking = False
+        self.attack_frame = 0
     
     def move(self):
         #add gravity so that player can touch the ground
@@ -169,14 +187,29 @@ class Player(pygame.sprite.Sprite):
                 self.image = run_ani_L[self.move_frame]
 
     def attack(self):
-        pass
+        #return to base frame
+        if self.attack_frame > 10:
+            self.attack_frame = 0
+            self.attacking = False
+        #check direction for good display
+        if self.direction == "R":
+            self.image = attack_ani_R[self.attack_frame]
+        elif self.direction == "L":
+            self.correction()
+            self.image = attack_ani_L[self.attack_frame]
+        self.attack_frame += 1
+
+    def correction(self):
+        if self.attack_frame == 1:
+            self.pos.x -= 20
+        if self.attack_frame == 10:
+            self.pos.x += 20
 
     def jump(self):
         hits = pygame.sprite.spritecollide(self, ground_group, False)
         if hits and not self.jumping:
             self.jumping = True
             self.vel.y = -12
-
 
     def gravity_check(self):
         hits = pygame.sprite.spritecollide(player, ground_group, False)
@@ -213,10 +246,16 @@ while 1:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 player.jump()
-    
+            if event.key == pygame.K_a:
+                if player.attacking == False:
+                    player.attack()
+                    player.attacking = True
+        
     background.render()
     ground.render()
     player.update()
+    if player.attacking == True:
+        player.attack()
     player.move()
     displaysurface.blit(player.image, player.rect)
 
