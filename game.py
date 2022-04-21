@@ -14,66 +14,76 @@ FRIC = -0.1
 FPS = pygame.time.Clock()
 COUNT = 0
 
-#create game windows
-displaysurface = pygame.display.set_mode((W,H))
+# create game windows
+displaysurface = pygame.display.set_mode((W, H))
 pygame.display.set_caption("Game")
-        
-#run animation for the right
+
+# run animation for the right
 run_ani_R = [pygame.image.load("Player_Sprite_R.png"), pygame.image.load("Player_Sprite2_R.png"),
-             pygame.image.load("Player_Sprite3_R.png"),pygame.image.load("Player_Sprite4_R.png"),
-             pygame.image.load("Player_Sprite5_R.png"),pygame.image.load("Player_Sprite6_R.png"),
+             pygame.image.load("Player_Sprite3_R.png"), pygame.image.load("Player_Sprite4_R.png"),
+             pygame.image.load("Player_Sprite5_R.png"), pygame.image.load("Player_Sprite6_R.png"),
              pygame.image.load("Player_Sprite_R.png")]
 
-#run animation for the left
+# run animation for the left
 run_ani_L = [pygame.image.load("Player_Sprite_L.png"), pygame.image.load("Player_Sprite2_L.png"),
-             pygame.image.load("Player_Sprite3_L.png"),pygame.image.load("Player_Sprite4_L.png"),
-             pygame.image.load("Player_Sprite5_L.png"),pygame.image.load("Player_Sprite6_L.png"),
+             pygame.image.load("Player_Sprite3_L.png"), pygame.image.load("Player_Sprite4_L.png"),
+             pygame.image.load("Player_Sprite5_L.png"), pygame.image.load("Player_Sprite6_L.png"),
              pygame.image.load("Player_Sprite_L.png")]
 
 # Attack animation for the RIGHT
 attack_ani_R = [pygame.image.load("Player_Sprite_R.png"), pygame.image.load("Player_Attack_R.png"),
-                pygame.image.load("Player_Attack2_R.png"),pygame.image.load("Player_Attack2_R.png"),
-                pygame.image.load("Player_Attack3_R.png"),pygame.image.load("Player_Attack3_R.png"),
-                pygame.image.load("Player_Attack4_R.png"),pygame.image.load("Player_Attack4_R.png"),
-                pygame.image.load("Player_Attack5_R.png"),pygame.image.load("Player_Attack5_R.png"),
+                pygame.image.load("Player_Attack2_R.png"), pygame.image.load("Player_Attack2_R.png"),
+                pygame.image.load("Player_Attack3_R.png"), pygame.image.load("Player_Attack3_R.png"),
+                pygame.image.load("Player_Attack4_R.png"), pygame.image.load("Player_Attack4_R.png"),
+                pygame.image.load("Player_Attack5_R.png"), pygame.image.load("Player_Attack5_R.png"),
                 pygame.image.load("Player_Sprite_R.png")]
- 
+
 # Attack animation for the LEFT
 attack_ani_L = [pygame.image.load("Player_Sprite_L.png"), pygame.image.load("Player_Attack_L.png"),
-                pygame.image.load("Player_Attack2_L.png"),pygame.image.load("Player_Attack2_L.png"),
-                pygame.image.load("Player_Attack3_L.png"),pygame.image.load("Player_Attack3_L.png"),
-                pygame.image.load("Player_Attack4_L.png"),pygame.image.load("Player_Attack4_L.png"),
-                pygame.image.load("Player_Attack5_L.png"),pygame.image.load("Player_Attack5_L.png"),
+                pygame.image.load("Player_Attack2_L.png"), pygame.image.load("Player_Attack2_L.png"),
+                pygame.image.load("Player_Attack3_L.png"), pygame.image.load("Player_Attack3_L.png"),
+                pygame.image.load("Player_Attack4_L.png"), pygame.image.load("Player_Attack4_L.png"),
+                pygame.image.load("Player_Attack5_L.png"), pygame.image.load("Player_Attack5_L.png"),
                 pygame.image.load("Player_Sprite_L.png")]
+
+# health bar animation
+health_ani = [pygame.image.load("heart0.png"), pygame.image.load("heart.png"),
+              pygame.image.load("heart2.png"), pygame.image.load("heart3.png"),
+              pygame.image.load("heart4.png"), pygame.image.load("heart5.png")]
+
 
 class EventHandler():
     def __init__(self):
         self.enemy_count = 0
-        self.dead_enemy_count = 0
         self.battle = False
         self.enemy_generation = pygame.USEREVENT + 2
+        self.dead_enemy_count = 0
 
-    #create main menu
+    # create main menu
     def level_handler(self):
         self.root = Tk()
-        self.root.geometry("250x300+820+370")
-        
-        #get value from radio button (level1, level2 and level3)
+        self.root.geometry("250x300+800+350")
+
+        # get value from radio button (level1, level2 and level3)
         def select():
             s = var.get()
             if s == 1:
                 self.level1()
             if s == 2:
                 self.level2()
-            if s == 3:            
+            if s == 3:
                 self.level3()
+
         var = IntVar()
-        #create label, radio button and game start quit button
+        # create label, radio button and game start quit button
         label1 = Label(self.root, text=" Dungeon Game ", font=("Arial", 25))
         label2 = Label(self.root, text="Select Game Level", font=("Arial", 15))
-        rbouton1 = Radiobutton(self.root, text="Level 1", font=("Arial", 12), value=1, variable=var, indicatoron=0, width=20)
-        rbouton2 = Radiobutton(self.root, text="Level 2",font=("Arial", 12), value=2, variable=var, indicatoron=0, width=20)
-        rbouton3 = Radiobutton(self.root, text="Level 3", font=("Arial", 12), value=3, variable=var, indicatoron=0, width=20)
+        rbouton1 = Radiobutton(self.root, text="Level 1", font=("Arial", 12), value=1, variable=var, indicatoron=0,
+                               width=20)
+        rbouton2 = Radiobutton(self.root, text="Level 2", font=("Arial", 12), value=2, variable=var, indicatoron=0,
+                               width=20)
+        rbouton3 = Radiobutton(self.root, text="Level 3", font=("Arial", 12), value=3, variable=var, indicatoron=0,
+                               width=20)
         label3 = Label(self.root, text="")
         bouton1 = Button(self.root, text="Start", font=("Arial", 15), background="light blue", width=10, command=select)
         bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10, command=quit)
@@ -87,75 +97,155 @@ class EventHandler():
         bouton2.pack(side=RIGHT)
 
         self.root.mainloop()
-            
+
     def level1(self):
         self.root.destroy()
         pygame.time.set_timer(self.enemy_generation, 2000)
         self.level = 1
-        self.level_enemies = 6
+        self.level_enemies = 12
         self.enemy_count = 0
+        self.dead_enemy_count = 0
 
     def level2(self):
         self.root.destroy()
-        pygame.time.set_timer(self.enemy_generation, 2000)
+        pygame.time.set_timer(self.enemy_generation, 1800)
         self.level = 2
-        self.level_enemies = 12
+        self.level_enemies = 20
         self.enemy_count = 0
+        self.dead_enemy_count = 0
 
     def level3(self):
         self.root.destroy()
-        pygame.time.set_timer(self.enemy_generation, 2000)
+        pygame.time.set_timer(self.enemy_generation, 1500)
         self.level = 3
-        self.level_enemies = 20
+        self.level_enemies = 30
         self.enemy_count = 0
+        self.dead_enemy_count = 0
 
-#create background
+    def gameover_handler(self):
+        self.root = Tk()
+        self.root.geometry("250x300+800+350")
+
+        # create gameover label and restart game button
+        label1 = Label(self.root, text=" Game Over ", font=("Arial", 25))
+
+        def select():
+            player.respawn()
+            if self.level == 1:
+                self.level1()
+            if self.level == 2:
+                self.level2()
+            if self.level == 3:
+                self.level3()
+
+        bouton1 = Button(self.root, text="Restart", font=("Arial", 15), background="light blue", width=10,
+                         command=select)
+        label2 = Label(self.root, text="")
+        bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10, command=quit)
+        label3 = Label(self.root, text="")
+
+        label1.pack()
+        label2.pack(pady=5)
+        bouton1.pack()
+        label3.pack(pady=5)
+        bouton2.pack()
+
+        self.root.mainloop()
+
+    def gamewin_handler(self):
+        self.root = Tk()
+        self.root.geometry("250x300+800+350")
+        label1 = Label(self.root, text="You won", font=("Arial", 25))
+
+        if self.level == 3:
+            player.respawn()
+            bouton1 = Button(self.root, text="Play again", font=("Arial", 15), background="light blue", width=10,
+                             command=self.level1)
+            label2 = Label(self.root, text="")
+            bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10,
+                             command=quit)
+            label3 = Label(self.root, text="")
+
+        else:
+            def select():
+                player.respawn()
+                if self.level == 1:
+                    self.level2()
+                elif self.level == 2:
+                    self.level3()
+
+            bouton1 = Button(self.root, text="Next Level", font=("Arial", 15), background="light blue", width=10,
+                             command=select)
+            label2 = Label(self.root, text="")
+            bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10,
+                             command=quit)
+            label3 = Label(self.root, text="")
+
+        label1.pack()
+        label2.pack(pady=5)
+        bouton1.pack()
+        label3.pack(pady=5)
+        bouton2.pack()
+
+        self.root.mainloop()
+
+    def update(self):
+        if self.dead_enemy_count == self.level_enemies:
+            self.gamewin_handler()
+
+
+# create background
 class Background(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.bgimg = pygame.image.load("Background.png")
-    
+
     def render(self):
         displaysurface.blit(self.bgimg, (0, 0))
 
-#create ground
+
+# create ground
 class Ground(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.gimg = pygame.image.load("Ground.png")
-        self.rect = self.gimg.get_rect(center = (350, 350))
+        self.rect = self.gimg.get_rect(center=(350, 350))
 
     def render(self):
         displaysurface.blit(self.gimg, (self.rect.x, self.rect.y))
 
-#create player
+
+# create player
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("Player_Sprite_R.png")
         self.rect = self.image.get_rect()
 
-        #position and direction
+        # position and direction
         self.pos = vec((340, 240))
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
         self.direction = "R"
 
-        #movement
+        # movement
         self.jumping = False
         self.running = False
         self.move_frame = 0
 
-        #combat
+        # combat
         self.attacking = False
         self.attack_frame = 0
         self.cooldown = False
-    
+
+        # health
+        self.health = 5
+
     def move(self):
-        #add gravity so that player can touch the ground
+        # add gravity so that player can touch the ground
         self.acc = vec(0, 0.5)
 
-        #set running to False if the player has slowed down
+        # set running to False if the player has slowed down
         if abs(self.vel.x) > 0.3:
             self.running = True
         else:
@@ -164,32 +254,32 @@ class Player(pygame.sprite.Sprite):
         # Returns the current key presses
         pressed_keys = pygame.key.get_pressed()
 
-        #Accelerates the player in the direction of the key press
+        # Accelerates the player in the direction of the key press
         if pressed_keys[K_LEFT]:
             self.acc.x = -ACC
         if pressed_keys[K_RIGHT]:
             self.acc.x = ACC
 
-        #calculate velocity
+        # calculate velocity
         self.acc.x += self.vel.x * FRIC
         self.vel += self.acc
-        self.pos += self.vel + 0.5 * self.acc #update positon
-        self.rect.midbottom = self.pos #update rect
+        self.pos += self.vel + 0.5 * self.acc  # update positon
+        self.rect.midbottom = self.pos  # update rect
 
-        #keep player inside the screen
+        # keep player inside the screen
         if self.pos.x > W:
             self.pos.x = 0
         if self.pos.x < 0:
             self.pos.x = W
-        
-        self.rect.midbottom = self.pos #update rect
+
+        self.rect.midbottom = self.pos  # update rect
 
     def update(self):
-        #reset move frame
+        # reset move frame
         if self.move_frame > 6:
             self.move_frame = 0
 
-        #move player to next frame
+        # move player to next frame
         if self.jumping == False and self.running == True:
             if self.vel.x > 0:
                 self.image = run_ani_R[self.move_frame]
@@ -198,8 +288,8 @@ class Player(pygame.sprite.Sprite):
                 self.image = run_ani_L[self.move_frame]
                 self.direction = "L"
             self.move_frame += 1
-        
-        #return to base frame
+
+        # return to base frame
         if abs(self.vel.x) < 0.2 and self.move_frame != 0:
             self.move_frame = 0
             if self.direction == "R":
@@ -208,20 +298,28 @@ class Player(pygame.sprite.Sprite):
                 self.image = run_ani_L[self.move_frame]
 
     def attack(self):
-        #return to base frame
+        # return to base frame
         if self.attack_frame > 10:
             self.attack_frame = 0
             self.attacking = False
-        #check direction for good display
+        # check direction for good display
         if self.direction == "R":
+            self.correctionr()
             self.image = attack_ani_R[self.attack_frame]
         elif self.direction == "L":
-            self.correction()
+            self.correctionl()
             self.image = attack_ani_L[self.attack_frame]
         self.attack_frame += 1
 
-    #correct 2 pics positions
-    def correction(self):
+    # correct 2 pics positions
+    def correctionr(self):
+        if self.attack_frame == 1:
+            self.pos.x += 28
+        if self.attack_frame == 10:
+            self.pos.x -= 28
+
+    # correct 2 pics positions
+    def correctionl(self):
         if self.attack_frame == 1:
             self.pos.x -= 20
         if self.attack_frame == 10:
@@ -232,8 +330,8 @@ class Player(pygame.sprite.Sprite):
         if hits and not self.jumping:
             self.jumping = True
             self.vel.y = -12
-    
-    #check if touch the ground, then stop
+
+    # check if touch the ground, then stop
     def gravity_check(self):
         hits = pygame.sprite.spritecollide(player, ground_group, False)
         if self.vel.y > 0:
@@ -243,17 +341,29 @@ class Player(pygame.sprite.Sprite):
                     self.pos.y = hits[0].rect.top + 1
                     self.vel.y = 0
                     self.jumping = False
-    
+
     def player_hit(self):
         if self.cooldown == False:
             self.cooldown = True
             pygame.time.set_timer(hit_cooldown, 1000)
             pygame.display.update()
-    
+
+            self.health -= 1
+
+            # if lose all the health, game over
+            if self.health <= 0:
+                pygame.display.update()
+                handler.gameover_handler()
+
     def render(self):
         displaysurface.blit(self.image, self.rect)
 
-#create enemy
+    def respawn(self):
+        self.health = 5
+        for sprite in enemy_group:
+            sprite.kill()
+
+# create enemy
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -262,24 +372,24 @@ class Enemy(pygame.sprite.Sprite):
         self.pos = vec(0, 0)
         self.vel = vec(0, 0)
         self.direction = random.randint(0, 1)
-        self.vel.x = random.randint(1, 5) / 2
+        self.vel.x = random.randint(2, 6) / 2
 
-        #sets the initial position of the enemy
+        # sets the initial position of the enemy
         if self.direction == 0:
             self.pos.x = 0
             self.pos.y = 235
         if self.direction == 1:
             self.pos.x = 700
             self.pos.y = 235
-    
+
     def move(self):
-        #when reach the border of screen, turn the direction
+        # when reach the border of screen, turn the direction
         if self.pos.x >= (W - 20):
             self.direction = 1
         elif self.pos.x <= 0:
             self.direction = 0
 
-        #update position with new values
+        # update position with new values
         if self.direction == 0:
             self.pos.x += self.vel.x
         if self.direction == 1:
@@ -288,15 +398,26 @@ class Enemy(pygame.sprite.Sprite):
 
     def update(self):
         hits = pygame.sprite.spritecollide(self, player_group, False)
-        #check if collision with player
+        # check if collision with player
         if hits and player.attacking == True:
             self.kill()
+            handler.dead_enemy_count += 1
         elif hits and player.attacking == False:
             player.player_hit()
 
     def render(self):
-        #display enemy on screen
+        # display enemy on screen
         displaysurface.blit(self.image, self.rect)
+
+
+class HealthBar(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load("heart5.png")
+
+    def render(self):
+        displaysurface.blit(self.image, (10, 10))
+
 
 handler = EventHandler()
 handler.level_handler()
@@ -315,6 +436,8 @@ enemy_group = pygame.sprite.Group()
 
 hit_cooldown = pygame.USEREVENT + 1
 
+health = HealthBar()
+
 while 1:
     player.gravity_check()
 
@@ -327,13 +450,13 @@ while 1:
             pygame.quit()
             sys.exit()
 
-        #generate enemy
+        # generate enemy
         if event.type == handler.enemy_generation:
             if handler.enemy_count < handler.level_enemies:
                 enemy = Enemy()
                 enemy_group.add(enemy)
                 handler.enemy_count += 1
-        
+
         # event handling for a range of different key presses
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
@@ -342,12 +465,12 @@ while 1:
                 if player.attacking == False:
                     player.attack()
                     player.attacking = True
-        
-        #resets the cooldown
+
+        # resets the cooldown
         if event.type == hit_cooldown:
             player.cooldown = False
             pygame.time.set_timer(hit_cooldown, 0)
-        
+
     background.render()
     ground.render()
 
@@ -355,13 +478,17 @@ while 1:
     if player.attacking == True:
         player.attack()
     player.move()
-    player.render()
-    
+    if player.health > 0:
+        player.render()
+    health.render()
+
     for entity in enemy_group:
         entity.update()
         entity.move()
         entity.render()
 
+    health.image = health_ani[player.health]
+    handler.update()
+
     pygame.display.update()
     FPS.tick(60)
-        
