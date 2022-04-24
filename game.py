@@ -58,12 +58,18 @@ class EventHandler():
         self.battle = False
         self.enemy_generation = pygame.USEREVENT + 2
         self.dead_enemy_count = 0
+        self.windowWidth = 250
+        self.windowHeight = 300
+
+    def tk_init(self):
+        self.root = Tk()
+        self.topleft_x = int(self.root.winfo_screenwidth()/2 - self.windowWidth/2)
+        self.topleft_y = int(self.root.winfo_screenheight()/2 - self.windowHeight/2)
+        self.root.geometry("{}x{}+{}+{}".format(self.windowWidth, self.windowHeight, self.topleft_x, self.topleft_y))
 
     # create main menu
     def level_handler(self):
-        self.root = Tk()
-        self.root.geometry("250x300+800+350")
-
+        self.tk_init()
         # get value from radio button (level1, level2 and level3)
         def select():
             s = var.get()
@@ -123,9 +129,8 @@ class EventHandler():
         self.dead_enemy_count = 0
 
     def gameover_handler(self):
-        self.root = Tk()
-        self.root.geometry("250x300+800+350")
-
+        pygame.time.set_timer(self.enemy_generation, 0)
+        self.tk_init()
         # create gameover label and restart game button
         label1 = Label(self.root, text=" Game Over ", font=("Arial", 25))
 
@@ -140,31 +145,25 @@ class EventHandler():
 
         bouton1 = Button(self.root, text="Restart", font=("Arial", 15), background="light blue", width=10,
                          command=select)
-        label2 = Label(self.root, text="")
         bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10, command=quit)
-        label3 = Label(self.root, text="")
 
         label1.pack()
-        label2.pack(pady=5)
-        bouton1.pack()
-        label3.pack(pady=5)
-        bouton2.pack()
-
+        bouton1.place(x=65, y=100)
+        bouton2.place(x=65, y=175)
         self.root.mainloop()
 
     def gamewin_handler(self):
-        self.root = Tk()
-        self.root.geometry("250x300+800+350")
+        pygame.time.set_timer(self.enemy_generation, 0)
+        self.tk_init()
         label1 = Label(self.root, text="You won", font=("Arial", 25))
+        label1.pack()
 
         if self.level == 3:
             player.respawn()
             bouton1 = Button(self.root, text="Play again", font=("Arial", 15), background="light blue", width=10,
                              command=self.level1)
-            label2 = Label(self.root, text="")
             bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10,
                              command=quit)
-            label3 = Label(self.root, text="")
 
         else:
             def select():
@@ -176,23 +175,17 @@ class EventHandler():
 
             bouton1 = Button(self.root, text="Next Level", font=("Arial", 15), background="light blue", width=10,
                              command=select)
-            label2 = Label(self.root, text="")
             bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10,
                              command=quit)
-            label3 = Label(self.root, text="")
 
-        label1.pack()
-        label2.pack(pady=5)
-        bouton1.pack()
-        label3.pack(pady=5)
-        bouton2.pack()
+        bouton1.place(x=65, y=100)
+        bouton2.place(x=65, y=175)
 
         self.root.mainloop()
 
     def update(self):
         if self.dead_enemy_count == self.level_enemies:
             self.gamewin_handler()
-
 
 # create background
 class Background(pygame.sprite.Sprite):
@@ -314,16 +307,18 @@ class Player(pygame.sprite.Sprite):
     # correct 2 pics positions
     def correctionr(self):
         if self.attack_frame == 1:
-            self.pos.x += 28
-        if self.attack_frame == 10:
-            self.pos.x -= 28
-
+            self.pos.x += 20
+        elif self.attack_frame == 10:
+            self.pos.x -= 20
+        self.rect.midbottom = self.pos  # update rect
+        
     # correct 2 pics positions
     def correctionl(self):
         if self.attack_frame == 1:
             self.pos.x -= 20
-        if self.attack_frame == 10:
+        elif self.attack_frame == 10:
             self.pos.x += 20
+        self.rect.midbottom = self.pos  # update rect
 
     def jump(self):
         hits = pygame.sprite.spritecollide(self, ground_group, False)
@@ -352,7 +347,6 @@ class Player(pygame.sprite.Sprite):
 
             # if lose all the health, game over
             if self.health <= 0:
-                pygame.display.update()
                 handler.gameover_handler()
 
     def render(self):
@@ -401,6 +395,7 @@ class Enemy(pygame.sprite.Sprite):
         # check if collision with player
         if hits and player.attacking == True:
             self.kill()
+            pygame.display.update()
             handler.dead_enemy_count += 1
         elif hits and player.attacking == False:
             player.player_hit()
@@ -442,8 +437,10 @@ while 1:
     player.gravity_check()
 
     for event in pygame.event.get():
+        # resets the cooldown
         if event.type == hit_cooldown:
             player.cooldown = False
+            pygame.time.set_timer(hit_cooldown, 0)
 
         # quit when the close window button is clicked
         if event.type == QUIT:
@@ -464,12 +461,7 @@ while 1:
             if event.key == pygame.K_a:
                 if player.attacking == False:
                     player.attack()
-                    player.attacking = True
-
-        # resets the cooldown
-        if event.type == hit_cooldown:
-            player.cooldown = False
-            pygame.time.set_timer(hit_cooldown, 0)
+                    player.attacking = True           
 
     background.render()
     ground.render()
