@@ -115,14 +115,19 @@ class EventHandler():
     def level2(self):
         self.root.destroy()
         pygame.time.set_timer(self.enemy_generation, 1800)
+        background.bgimage = pygame.image.load("desert.jpg")
+        ground.gimage = pygame.image.load("desert_ground.png")
         self.level = 2
         self.level_enemies = 20
         self.enemy_count = 0
         self.dead_enemy_count = 0
 
+
     def level3(self):
         self.root.destroy()
         pygame.time.set_timer(self.enemy_generation, 1500)
+        background.bgimage = pygame.image.load("dark.png")
+        ground.gimage = pygame.image.load("darkground.png")
         self.level = 3
         self.level_enemies = 30
         self.enemy_count = 0
@@ -191,21 +196,21 @@ class EventHandler():
 class Background(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.bgimg = pygame.image.load("Background.png")
+        self.bgimage = pygame.image.load("Background.png")
 
     def render(self):
-        displaysurface.blit(self.bgimg, (0, 0))
+        displaysurface.blit(self.bgimage, (0, 0))
 
 
 # create ground
 class Ground(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.gimg = pygame.image.load("Ground.png")
-        self.rect = self.gimg.get_rect(center=(350, 350))
+        self.gimage = pygame.image.load("Ground.png")
+        self.rect = self.gimage.get_rect(center=(350, 350))
 
     def render(self):
-        displaysurface.blit(self.gimg, (self.rect.x, self.rect.y))
+        displaysurface.blit(self.gimage, (self.rect.x, self.rect.y))
 
 
 # create player
@@ -413,10 +418,6 @@ class HealthBar(pygame.sprite.Sprite):
     def render(self):
         displaysurface.blit(self.image, (10, 10))
 
-
-handler = EventHandler()
-handler.level_handler()
-
 background = Background()
 ground = Ground()
 ground_group = pygame.sprite.Group()
@@ -432,6 +433,9 @@ enemy_group = pygame.sprite.Group()
 hit_cooldown = pygame.USEREVENT + 1
 
 health = HealthBar()
+
+handler = EventHandler()
+handler.level_handler()
 
 while 1:
     player.gravity_check()
