@@ -65,7 +65,7 @@ class EventHandler():
         self.root = Tk()
         self.topleft_x = int(self.root.winfo_screenwidth()/2 - self.windowWidth/2)
         self.topleft_y = int(self.root.winfo_screenheight()/2 - self.windowHeight/2)
-        self.root.geometry("{}x{}+{}+{}".format(self.windowWidth, self.windowHeight, self.topleft_x, self.topleft_y))
+        self.root.geometry(f"{self.windowWidth}x{self.windowHeight}+{self.topleft_x}+{self.topleft_y}")
 
     # create main menu
     def level_handler(self):
@@ -107,8 +107,10 @@ class EventHandler():
     def level1(self):
         self.root.destroy()
         pygame.time.set_timer(self.enemy_generation, 2000)
+        background.bgimage = pygame.image.load("background.png")
+        ground.gimage = pygame.image.load("ground.png")
         self.level = 1
-        self.level_enemies = 12
+        self.level_enemies = 3
         self.enemy_count = 0
         self.dead_enemy_count = 0
 
@@ -118,7 +120,7 @@ class EventHandler():
         background.bgimage = pygame.image.load("desert.jpg")
         ground.gimage = pygame.image.load("desert_ground.png")
         self.level = 2
-        self.level_enemies = 20
+        self.level_enemies = 5
         self.enemy_count = 0
         self.dead_enemy_count = 0
 
@@ -129,7 +131,7 @@ class EventHandler():
         background.bgimage = pygame.image.load("dark.png")
         ground.gimage = pygame.image.load("darkground.png")
         self.level = 3
-        self.level_enemies = 30
+        self.level_enemies = 8
         self.enemy_count = 0
         self.dead_enemy_count = 0
 
@@ -160,29 +162,27 @@ class EventHandler():
     def gamewin_handler(self):
         pygame.time.set_timer(self.enemy_generation, 0)
         self.tk_init()
-        label1 = Label(self.root, text="You won", font=("Arial", 25))
-        label1.pack()
-
         if self.level == 3:
             player.respawn()
-            bouton1 = Button(self.root, text="Play again", font=("Arial", 15), background="light blue", width=10,
-                             command=self.level1)
-            bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10,
+            def tk_handle():
+                self.root.destroy()
+                self.level_handler()
+            label1 = Label(self.root, text="You won the game", font=("Arial", 25))
+            bouton1 = Button(self.root, text="Main menu", font=("Arial", 15), background="light blue", width=10,
+                             command=tk_handle)
+            
+        elif self.level == 1:
+            label1 = Label(self.root, text="You won level 1", font=("Arial", 25))
+        
+            bouton1 = Button(self.root, text="Level 2", font=("Arial", 15), background="light blue", width=10,
+                             command=self.level2) 
+        elif self.level == 2:
+            label1 = Label(self.root, text="You won level 2", font=("Arial", 25))
+            bouton1 = Button(self.root, text="Level 3", font=("Arial", 15), background="light blue", width=10,
+                             command=self.level3) 
+        bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10,
                              command=quit)
-
-        else:
-            def select():
-                player.respawn()
-                if self.level == 1:
-                    self.level2()
-                elif self.level == 2:
-                    self.level3()
-
-            bouton1 = Button(self.root, text="Next Level", font=("Arial", 15), background="light blue", width=10,
-                             command=select)
-            bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10,
-                             command=quit)
-
+        label1.pack()
         bouton1.place(x=65, y=100)
         bouton2.place(x=65, y=175)
 
