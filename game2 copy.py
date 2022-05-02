@@ -1,22 +1,8 @@
-from abc import ABC, abstractmethod
 import random
 import pygame
 import pygame_gui
 
-class Scene(ABC):
-    @abstractmethod
-    def update(self, delta_time):
-        pass
-
-    @abstractmethod
-    def process_events(self, event):
-        pass
-
-    @abstractmethod
-    def cleanup(self):
-        game.sprites.empty()
-
-class TitleScene(Scene):
+class TitleScene():
     def __init__(self):
         self.start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
                                              text='Start Game',
@@ -30,10 +16,9 @@ class TitleScene(Scene):
         #game.sprites.add(Enemy((0, 0)))
         game.sprites.add(Player((0, 0)))
         game.sprites.add(Ground((350, 350)))
+        game.sprites.add(Background())
 
-        #game.background = pygame.transform.scale(pygame.image.load("background.png"), (W, H))
-
-    def update(self, delta_time):
+    def update(self):
         pass
 
     def process_events(self, event):
@@ -53,7 +38,7 @@ class TitleScene(Scene):
         self.shake_button.kill()
         self.exit_button.kill()
 
-class GameScene(Scene):
+class GameScene():
     def __init__(self):
         game.sprites.add(Player())
         pass
@@ -67,10 +52,12 @@ class GameScene(Scene):
 class Player(pygame.sprite.DirtySprite):
     def __init__(self, position):
         super().__init__()
+        self.image = pygame.image.load("Player_Sprite_L.png")
         self.rect = self.image.get_rect(topleft=position)
 
     def update(self):
-        pass
+        self.rect.y += 1
+        self.dirty = 1
 
 class Enemy(pygame.sprite.DirtySprite):
     def __init__(self, position):
@@ -78,9 +65,14 @@ class Enemy(pygame.sprite.DirtySprite):
         self.image = pygame.image.load("Enemy.png")
         self.rect = self.image.get_rect(topleft=position)
 
-    def update(self, delta_time):
+    def update(self):
         self.rect.y += 1
         self.dirty = 1
+
+class Background(pygame.sprite.DirtySprite):
+    def __init__(self):
+        super().__init__()
+        self.bgimage = pygame.image.load("Background.png")
 
 class Ground(pygame.sprite.DirtySprite):
     def __init__(self, position):
@@ -95,7 +87,6 @@ class Game():
         self.clock = pygame.time.Clock()
         self.sprites = pygame.sprite.LayeredDirty()
         self.display = pygame.display.set_mode((W, H))
-        self.framebuffer = self.display.copy()
         self.ui_manager = pygame_gui.UIManager((W, H))
         self.current_scene = None
 
@@ -114,17 +105,10 @@ class Game():
             self.current_scene.process_events(event)
 
     def tick(self):
-        delta_time = self.clock.tick(FPS)/1000.0
         self.handle_events()
-        self.ui_manager.update(delta_time)
-        self.sprites.update(delta_time)
-        self.current_scene.update(delta_time)
-
-        if self.shake:
-            self.offset = (random.randrange(-5, 5), random.randrange(-5, 5))
-        else:
-            self.offset = (0, 0)
-
+        self.ui_manager.update()
+        self.sprites.update()
+        self.current_scene.update()
         rects = self.sprites.draw(self.framebuffer, self.background)
         self.display.blit(self.framebuffer, self.offset)
         self.ui_manager.draw_ui(self.display)
