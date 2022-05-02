@@ -70,7 +70,49 @@ class Background(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(0, 0))
         self._layer=-1
 
+
+class Ground(pygame.sprite.Sprite):
+    def __init__(self, position):
+        super().__init__()
+        self.image = pygame.image.load("Ground.png")
+        self.rect = self.image.get_rect(center=position)
+
+
 class Player(pygame.sprite.Sprite):
+    # taken from https://coderslegacy.com/python/pygame-rpg-movement-animations/
+    # run animation for the right
+    run_ani_R = [pygame.image.load("Player_Sprite_R.png"), pygame.image.load("Player_Sprite2_R.png"),
+                pygame.image.load("Player_Sprite3_R.png"), pygame.image.load("Player_Sprite4_R.png"),
+                pygame.image.load("Player_Sprite5_R.png"), pygame.image.load("Player_Sprite6_R.png"),
+                pygame.image.load("Player_Sprite_R.png")]
+
+    # run animation for the left
+    run_ani_L = [pygame.image.load("Player_Sprite_L.png"), pygame.image.load("Player_Sprite2_L.png"),
+                pygame.image.load("Player_Sprite3_L.png"), pygame.image.load("Player_Sprite4_L.png"),
+                pygame.image.load("Player_Sprite5_L.png"), pygame.image.load("Player_Sprite6_L.png"),
+                pygame.image.load("Player_Sprite_L.png")]
+
+    # Attack animation for the RIGHT
+    attack_ani_R = [pygame.image.load("Player_Sprite_R.png"), pygame.image.load("Player_Attack_R.png"),
+                    pygame.image.load("Player_Attack2_R.png"), pygame.image.load("Player_Attack2_R.png"),
+                    pygame.image.load("Player_Attack3_R.png"), pygame.image.load("Player_Attack3_R.png"),
+                    pygame.image.load("Player_Attack4_R.png"), pygame.image.load("Player_Attack4_R.png"),
+                    pygame.image.load("Player_Attack5_R.png"), pygame.image.load("Player_Attack5_R.png"),
+                    pygame.image.load("Player_Sprite_R.png")]
+
+    # Attack animation for the LEFT
+    attack_ani_L = [pygame.image.load("Player_Sprite_L.png"), pygame.image.load("Player_Attack_L.png"),
+                    pygame.image.load("Player_Attack2_L.png"), pygame.image.load("Player_Attack2_L.png"),
+                    pygame.image.load("Player_Attack3_L.png"), pygame.image.load("Player_Attack3_L.png"),
+                    pygame.image.load("Player_Attack4_L.png"), pygame.image.load("Player_Attack4_L.png"),
+                    pygame.image.load("Player_Attack5_L.png"), pygame.image.load("Player_Attack5_L.png"),
+                    pygame.image.load("Player_Sprite_L.png")]
+
+    # health bar animation
+    health_ani = [pygame.image.load("heart0.png"), pygame.image.load("heart.png"),
+                pygame.image.load("heart2.png"), pygame.image.load("heart3.png"),
+                pygame.image.load("heart4.png"), pygame.image.load("heart5.png")]
+
     def __init__(self, position):
         super().__init__()
         self.image = pygame.image.load("Player_Sprite_R.png")
@@ -128,16 +170,16 @@ class Player(pygame.sprite.Sprite):
 
         # move player to next frame
         if self.velocity.x > 0.3:
-            self.image = run_ani_R[self.move_frame]
+            self.image = self.run_ani_R[self.move_frame]
             self.direction = True
         elif self.velocity.x < -0.3:
-            self.image = run_ani_L[self.move_frame]
+            self.image = self.run_ani_L[self.move_frame]
             self.direction = False
         else:
             if self.direction:
-                self.image = run_ani_R[0]
+                self.image = self.run_ani_R[0]
             else:
-                self.image = run_ani_L[0]
+                self.image = self.run_ani_L[0]
         self.move_frame += 1
         
     def attack(self):
@@ -147,9 +189,9 @@ class Player(pygame.sprite.Sprite):
             self.attacking = False
         # check direction for good display
         if self.direction:
-            self.image = attack_ani_R[self.attack_frame]
+            self.image = self.attack_ani_R[self.attack_frame]
         else:
-            self.image = attack_ani_L[self.attack_frame]
+            self.image = self.attack_ani_L[self.attack_frame]
         self.attack_frame += 1
     
 class Enemy(pygame.sprite.Sprite):
@@ -161,13 +203,8 @@ class Enemy(pygame.sprite.Sprite):
     def update(self, delta_time):
         self.rect.y += 1
 
-class Ground(pygame.sprite.Sprite):
-    def __init__(self, position):
-        super().__init__()
-        self.image = pygame.image.load("Ground.png")
-        self.rect = self.image.get_rect(center=position)
-
 class Game():
+
     def __init__(self):
         pygame.init()
         self.clock = pygame.time.Clock()
@@ -190,6 +227,7 @@ class Game():
                 pygame.quit()
             if event.type == KEYDOWN:
                 if event.key == pygame.K_a:
+                    pass
                     
             self.ui_manager.process_events(event)
             self.current_scene.process_events(event)
@@ -211,43 +249,9 @@ class Game():
         self.display.blit(self.framebuffer, self.offset)
         self.ui_manager.draw_ui(self.display)
         pygame.display.flip()
-
+    
 W = 700
 H = 350
-
-# taken from https://coderslegacy.com/python/pygame-rpg-movement-animations/
-# run animation for the right
-run_ani_R = [pygame.image.load("Player_Sprite_R.png"), pygame.image.load("Player_Sprite2_R.png"),
-             pygame.image.load("Player_Sprite3_R.png"), pygame.image.load("Player_Sprite4_R.png"),
-             pygame.image.load("Player_Sprite5_R.png"), pygame.image.load("Player_Sprite6_R.png"),
-             pygame.image.load("Player_Sprite_R.png")]
-
-# run animation for the left
-run_ani_L = [pygame.image.load("Player_Sprite_L.png"), pygame.image.load("Player_Sprite2_L.png"),
-             pygame.image.load("Player_Sprite3_L.png"), pygame.image.load("Player_Sprite4_L.png"),
-             pygame.image.load("Player_Sprite5_L.png"), pygame.image.load("Player_Sprite6_L.png"),
-             pygame.image.load("Player_Sprite_L.png")]
-
-# Attack animation for the RIGHT
-attack_ani_R = [pygame.image.load("Player_Sprite_R.png"), pygame.image.load("Player_Attack_R.png"),
-                pygame.image.load("Player_Attack2_R.png"), pygame.image.load("Player_Attack2_R.png"),
-                pygame.image.load("Player_Attack3_R.png"), pygame.image.load("Player_Attack3_R.png"),
-                pygame.image.load("Player_Attack4_R.png"), pygame.image.load("Player_Attack4_R.png"),
-                pygame.image.load("Player_Attack5_R.png"), pygame.image.load("Player_Attack5_R.png"),
-                pygame.image.load("Player_Sprite_R.png")]
-
-# Attack animation for the LEFT
-attack_ani_L = [pygame.image.load("Player_Sprite_L.png"), pygame.image.load("Player_Attack_L.png"),
-                pygame.image.load("Player_Attack2_L.png"), pygame.image.load("Player_Attack2_L.png"),
-                pygame.image.load("Player_Attack3_L.png"), pygame.image.load("Player_Attack3_L.png"),
-                pygame.image.load("Player_Attack4_L.png"), pygame.image.load("Player_Attack4_L.png"),
-                pygame.image.load("Player_Attack5_L.png"), pygame.image.load("Player_Attack5_L.png"),
-                pygame.image.load("Player_Sprite_L.png")]
-
-# health bar animation
-health_ani = [pygame.image.load("heart0.png"), pygame.image.load("heart.png"),
-              pygame.image.load("heart2.png"), pygame.image.load("heart3.png"),
-              pygame.image.load("heart4.png"), pygame.image.load("heart5.png")]
 
 if __name__ == '__main__':
     game = Game()
