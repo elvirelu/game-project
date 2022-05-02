@@ -75,6 +75,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load("Player_Sprite_R.png")
         self.rect = self.image.get_rect(topleft=position)
+        self.position = position
         self.velocity = Vector2(0, 0)
         self.acceleration = Vector2(0, 0)
         self.direction = True
@@ -82,27 +83,34 @@ class Player(pygame.sprite.Sprite):
 
     def update(self, delta_time):
         self.move()
+        self.rect.center = (round(self.position.x), round(self.position.y))
 
     def move(self):
-        self.acceleration = Vector2(0, 0.5)
+        self.acceleration = Vector2(0, GRAV)
         # taken from https://coderslegacy.com/python/pygame-gravity-and-jumping/
         # Returns the current key presses
         pressed_keys = pygame.key.get_pressed()
 
         # Accelerates the player in the direction of the key press
-        if pressed_keys[K_LEFT]:
-            self.acceleration.x = -0.3
         if pressed_keys[K_RIGHT]:
             self.acceleration.x = 0.3
-        self.velocity = self.velocity + self.acceleration * 1
+        if pressed_keys[K_LEFT]:
+            self.acceleration.x = -0.3
+        if pressed_keys[K_SPACE]:
+            self.acceleration.y = -1
+        
+        self.velocity += self.acceleration
+        self.velocity.x *= 1 - FRIC
+
         hits = pygame.sprite.spritecollide(self, game.current_scene.ground, False)
         # check if touch the ground, then stop
         if self.velocity.y > 0:
             if hits:
                 if self.rect.bottom > hits[0].rect.top:
-                    self.rect.bottom = hits[0].rect.top + 1
+                    self.position.y = hits[0].rect.top - self.rect.height / 2
                     self.velocity.y = 0
-        self.rect.center += self.velocity
+
+        self.position += self.velocity
         if self.direction:
             self.image = pygame.image.load("Player_Sprite_R.png")
         else:
@@ -169,7 +177,8 @@ class Game():
 W = 700
 H = 350
 FPS = 120
-FRIC = -0.1
+FRIC = 0.05
+GRAV = 0.5
 
 # run animation for the right
 run_ani_R = [pygame.image.load("Player_Sprite_R.png"), pygame.image.load("Player_Sprite2_R.png"),
