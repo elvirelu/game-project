@@ -96,8 +96,8 @@ class Player(pygame.sprite.Sprite):
             self.acceleration.x = 0.3
         if pressed_keys[K_LEFT]:
             self.acceleration.x = -0.3
-        if pressed_keys[K_SPACE]:
-            self.acceleration.y = -1
+        if pressed_keys[K_UP]:
+            self.acceleration.y = -0.5
         
         self.velocity += self.acceleration
         self.velocity.x *= 1 - FRIC
