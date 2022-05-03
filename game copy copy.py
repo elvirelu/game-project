@@ -14,7 +14,6 @@ class Player:
     update()
 
 class Enemy:
-    move()
     update()
 """
 
@@ -71,8 +70,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("Player_Sprite_R.png")
-        self.rect = self.image.get_rect(topleft=(350, 0))
-        self.position = Vector2(350, 0)
+        self.rect = self.image.get_rect(topleft=(W/2, 265))
+        self.position = Vector2(W/2, 265)
         self.velocity = Vector2(0, 0)
         self.acceleration = Vector2(0, 0)
         self.direction = True
@@ -82,7 +81,7 @@ class Player(pygame.sprite.Sprite):
         self.attack_frame = 0
         
     def set_pos(self):
-        self.acceleration = Vector2(0, 0.5)
+        self.acceleration = Vector2(0, 0)
 
         # Returns the current key presses
         self.pressed_keys = pygame.key.get_pressed()
@@ -97,16 +96,8 @@ class Player(pygame.sprite.Sprite):
         self.velocity += self.acceleration
         self.velocity.x *= 0.95
 
-        hits = pygame.sprite.spritecollide(self, game.ground, False)
-        # check if touch the ground, if touch, disable the velocity of direction y
-        if self.velocity.y > 0:
-            if hits:
-                if self.rect.bottom > hits[0].rect.top:
-                    self.position.y = hits[0].rect.top - self.rect.height / 2
-                    self.velocity.y = 0
-
         self.position += self.velocity
-        self.rect.center = (round(self.position.x), round(self.position.y))
+        self.rect.topleft = self.position
 
         # keep player inside the screen
         if self.position.x > W:
@@ -134,8 +125,8 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.image = self.move_ani_L[0]
 
-
     def attack(self):
+        # taken from https://coderslegacy.com/python/pygame-rpg-attack-animations/
         if self.attack_frame > 10:
             self.attack_frame = 0
             self.attacking = False
@@ -156,9 +147,34 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("Enemy.png")
-        self.rect = self.image.get_rect()
-        self.position = (0,0)
-        self.velocity = (1, 0)
+        self.rect = self.image.get_rect(topleft=(W-30, 255))
+        self.position = Vector2(W-30, 255)
+        self.velocity = Vector2(3, 0)
+        self.direction = True
+
+    def move(self):
+        #verify if position is out of range
+        if self.position.x < 0:
+            self.position.x = 0
+            self.direction = False
+        elif self.position.x > W-30:
+            self.position.x = W-30
+            self.direction = True
+
+        if self.direction:
+            self.position.x -= self.velocity.x
+        else:
+            self.position.x += self.velocity.x
+        self.rect.topleft = self.position
+    
+    def hit(self):
+        hit = pygame.sprite.spritecollide(self, game.playergroup, False)
+        if hit and game.player.attacking:
+            self.kill()
+
+    def update(self):
+        self.move()
+        self.hit()
 
 class Game:
     def __init__(self):
@@ -167,8 +183,10 @@ class Game:
         self.surface = pygame.display.set_mode((W, H))
         self.sprites = pygame.sprite.LayeredUpdates()
         self.player = Player()
+        self.playergroup = pygame.sprite.GroupSingle(self.player)
+        self.enemy = Enemy()
         self.ground = pygame.sprite.GroupSingle(Ground())
-        self.sprites.add(Background(), self.ground, self.player)
+        self.sprites.add(Background(), self.ground, self.player, self.enemy)
         self.running = True
 
     def event_handle(self):
