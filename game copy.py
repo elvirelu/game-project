@@ -41,20 +41,21 @@ class Game:
         self.surface = pygame.display.set_mode((W, H))
         self.sprites = pygame.sprite.LayeredUpdates()
         self.sprites.add(Background(), Ground())
+        self.running = True
 
     def event_handle(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                self.running = False
     
     def start_game(self):
-        while True:
+        while self.running:
             self.tick()
 
     def tick(self):
         self.event_handle()
         self.sprites.draw(self.surface)
-        pygame.display.update
+        pygame.display.update()
 
 W = 700
 H = 350
