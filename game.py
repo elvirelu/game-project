@@ -55,7 +55,6 @@ health_ani = [pygame.image.load("heart0.png"), pygame.image.load("heart.png"),
 class EventHandler():
     def __init__(self):
         self.enemy_count = 0
-        self.battle = False
         self.enemy_generation = pygame.USEREVENT + 2
         self.dead_enemy_count = 0
         self.windowWidth = 250
