@@ -102,9 +102,10 @@ class Player(pygame.sprite.Sprite):
 
     def get_pos(self):
         self.acceleration = Vector2(0, 0)
-        self.pressed_keys = pygame.key.get_pressed()
-
+        
+        # taken from https://coderslegacy.com/python/pygame-rpg-player-movement/
         # Accelerates the player in the direction of the key press
+        self.pressed_keys = pygame.key.get_pressed()
         if self.pressed_keys[K_RIGHT]:
             self.acceleration.x = 0.2
         elif self.pressed_keys[K_LEFT]:
@@ -116,7 +117,6 @@ class Player(pygame.sprite.Sprite):
         self.position += self.velocity
         self.rect.topleft = self.position
 
-        # taken from https://coderslegacy.com/python/pygame-rpg-player-movement/
         # keep player inside the screen
         if self.position.x > W:
             self.position.x = 0
@@ -145,7 +145,7 @@ class Player(pygame.sprite.Sprite):
 
     def attack(self):
         # taken from https://coderslegacy.com/python/pygame-rpg-attack-animations/
-        #restart the attack_frame number if it is out of range
+        # restart the attack_frame number if it is out of range
         if self.attack_frame > 10:
             self.attack_frame = 0
             self.attacking = False
@@ -158,14 +158,14 @@ class Player(pygame.sprite.Sprite):
 
     def hit(self):
         # taken from https://coderslegacy.com/python/pygame-rpg-health-bar/
-        #to avoid hit continually, set pausehit switch, allow detect hit after 1 second
+        # to avoid hit continually, set pausehit switch, allow detect hit after 1 second
         if self.hitpause == False:
             self.hitpause = True
             self.health -= 1
             pygame.time.set_timer(game.hitpause_event, 1000)
 
         # after losing all the health, redraw game sprites, update dispaly, wait 2s then call the gameover menu
-        if self.health <= 0:
+        if self.health < 0:
             self.kill()
             game.sprites.draw(game.surface)
             pygame.display.update()
@@ -209,6 +209,7 @@ class Enemy(pygame.sprite.Sprite):
         # check if hit
         hit = pygame.sprite.spritecollide(self, game.playergroup, False)
 
+        # taken from https://coderslegacy.com/python/pygame-rpg-attack-animations/
         # when player is attacking and hit, kill enemy, otherwise call player.hit() which will decrease player's health
         if hit and game.player.attacking == True:
             self.kill()
@@ -263,11 +264,13 @@ class Game:
             if event.type == pygame.QUIT:
                 self.run_game = False
             if event.type == KEYDOWN:
+                # taken from https://coderslegacy.com/python/pygame-rpg-attack-animations/
                 # press key A to perform player attack
                 if event.key == pygame.K_a:
                     if not self.player.attacking:
                         self.player.attack()
                         self.player.attacking = True
+
             # in every second check enemycreate event, then instancer enemy
             if event.type == self.enemycreate_event:
                 if self.enemy_count < self.enemy_num:
@@ -344,12 +347,9 @@ class Menu:
         # create label, radio button and game start quit button
         label1 = Label(self.root, text=" Dungeon Game ", font=("Arial", 25))
         label2 = Label(self.root, text="Select Game Level", font=("Arial", 15))
-        rbouton1 = Radiobutton(self.root, text="Level 1", font=("Arial", 12), value=1, variable=var, indicatoron=0,
-                            width=20)
-        rbouton2 = Radiobutton(self.root, text="Level 2", font=("Arial", 12), value=2, variable=var, indicatoron=0,
-                            width=20)
-        rbouton3 = Radiobutton(self.root, text="Level 3", font=("Arial", 12), value=3, variable=var, indicatoron=0,
-                            width=20)
+        rbouton1 = Radiobutton(self.root, text="Level 1", font=("Arial", 12), value=1, variable=var, indicatoron=0, width=20)
+        rbouton2 = Radiobutton(self.root, text="Level 2", font=("Arial", 12), value=2, variable=var, indicatoron=0, width=20)
+        rbouton3 = Radiobutton(self.root, text="Level 3", font=("Arial", 12), value=3, variable=var, indicatoron=0, width=20)
         label3 = Label(self.root, text="")
         bouton1 = Button(self.root, text="Start", font=("Arial", 15), background="light blue", width=10, command=select)
         bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10, command=exit)
@@ -377,8 +377,7 @@ class Menu:
                 game.level3()
         # create gameover label and restart game button
         label1 = Label(self.root, text=" Game Over ", font=("Arial", 25))
-        bouton1 = Button(self.root, text="Restart", font=("Arial", 15), background="light blue", width=10,
-                        command=select)
+        bouton1 = Button(self.root, text="Restart", font=("Arial", 15), background="light blue", width=10, command=select)
         bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10, command=exit)
         label1.pack()
         bouton1.place(x=65, y=100)
@@ -397,27 +396,22 @@ class Menu:
                 self.tk_init()
                 self.start_menu()
             label1 = Label(self.root, text="You won the game", font=("Arial", 25))
-            bouton1 = Button(self.root, text="Main menu", font=("Arial", 15), background="light blue", width=10,
-                            command=handle)               
+            bouton1 = Button(self.root, text="Main menu", font=("Arial", 15), background="light blue", width=10, command=handle)               
         elif game.level == 1:
             # go to next level, redraw the sprites
             def handle():
                 game.level2()
                 game.respawn()
-            label1 = Label(self.root, text="You won level 1", font=("Arial", 25))
-        
-            bouton1 = Button(self.root, text="Level 2", font=("Arial", 15), background="light blue", width=10,
-                            command=handle) 
+            label1 = Label(self.root, text="You won level 1", font=("Arial", 25))        
+            bouton1 = Button(self.root, text="Level 2", font=("Arial", 15), background="light blue", width=10, command=handle) 
         elif game.level == 2:
             # go to next level, redraw the sprites
             def handle():
                 game.level3()
                 game.respawn()
             label1 = Label(self.root, text="You won level 2", font=("Arial", 25))
-            bouton1 = Button(self.root, text="Level 3", font=("Arial", 15), background="light blue", width=10,
-                            command=handle) 
-        bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10,
-                            command=exit)
+            bouton1 = Button(self.root, text="Level 3", font=("Arial", 15), background="light blue", width=10, command=handle) 
+        bouton2 = Button(self.root, text="Quit", font=("Arial", 15), background="light blue", width=10, command=exit)
         label1.pack()
         bouton1.place(x=65, y=100)
         bouton2.place(x=65, y=175)
