@@ -62,6 +62,8 @@ class HealthBar(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     # taken from https://coderslegacy.com/python/pygame-rpg-movement-animations/
     # move animation for the right
+    # line 66 to 80 taken close to litteraly
+    # modifed logic afterwards so that ....
     move_ani_R = [pygame.image.load("player/Player_Sprite_R.png"), pygame.image.load("player/Player_Sprite2_R.png"),
                 pygame.image.load("player/Player_Sprite3_R.png"), pygame.image.load("player/Player_Sprite4_R.png"),
                 pygame.image.load("player/Player_Sprite5_R.png"), pygame.image.load("player/Player_Sprite6_R.png"),
@@ -102,8 +104,6 @@ class Player(pygame.sprite.Sprite):
 
     def get_pos(self):
         self.acceleration = Vector2(0, 0)
-        
-        # taken from https://coderslegacy.com/python/pygame-rpg-player-movement/
         # Accelerates the player in the direction of the key press
         self.pressed_keys = pygame.key.get_pressed()
         if self.pressed_keys[K_RIGHT]:
@@ -118,10 +118,10 @@ class Player(pygame.sprite.Sprite):
         self.rect.topleft = self.position
 
         # keep player inside the screen
-        if self.position.x > W:
-            self.position.x = 0
-        elif self.position.x < 0:
-            self.position.x = W
+        if self.position.x > W-50:
+            self.position.x = W-50
+        elif self.position.x < 50:
+            self.position.x = 50
 
     def move(self):
         # if move_frame out of range, restart it from 0
@@ -320,8 +320,10 @@ class Game:
         self.dead_enemy_count = 0
 
 class Menu:
-    def __init__(self):
-        self.tk_init()    
+    def __init__(self, game):
+        self.tk_init() 
+        self.game = game   
+
 
     # set tkinter menu in the center of screen
     def tk_init(self):
@@ -337,12 +339,12 @@ class Menu:
         def select():           
             s = var.get()
             if s == 1:
-                game.level1()
+                self.game.level1()
             if s == 2:
-                game.level2()
+                self.game.level2()
             if s == 3:
-                game.level3()
-            game.start_game()
+                self.game.level3()
+            self.game.start_game()
         var = IntVar()
         # create label, radio button and game start quit button
         label1 = Label(self.root, text=" Dungeon Game ", font=("Arial", 25))
@@ -420,5 +422,5 @@ class Menu:
 W = 700
 H = 400
 game = Game()
-menu = Menu()
+menu = Menu(game)
 menu.start_menu()
