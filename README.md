@@ -1,9 +1,11 @@
 # Dungeon Game
 
 Description:
-Dungeon Game is an adventure game, it has 3 levels. The first level has the minimum enemies and the third level has the maximum enemies. The player have to kill all the enemies in each level to win the game.
+
+Dungeon Game is an adventure game, it has 3 levels. The first level has the minimum enemies and the third level has the maximum enemies. The player has to kill all the enemies in each level to win the game.
 
 Use:
+
 In the start menu, click a game level ("Leve 1", "Level 2", "Level 3"), then click "Start".
 Select "Quit" to exit the game.
 
@@ -19,9 +21,14 @@ If player win the last level, in the "You win the game" menu, select "main menu"
 
 
 Authors and recognitions:
+
 Jing Lu
+
 Sofiane Chouioukh
+
 Rodrigue Mpouam Eba
 
+
 Reference:
+
 https://coderslegacy.com/python/pygame-rpg-game-tutorial/
