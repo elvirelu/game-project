@@ -22,7 +22,7 @@ If player win the last level, in the "You win the game" menu, select "main menu"
 
 
 
-Authors and recognitions:
+Authors:
 
 Jing Lu, 
 Sofiane Chouioukh, 
