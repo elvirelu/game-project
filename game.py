@@ -15,7 +15,7 @@ class Game:
     respawn()
 
 class Player:
-    set_pos()
+    get_pos()
     move()
     attack()
     health_check()

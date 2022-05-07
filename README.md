@@ -24,3 +24,6 @@ Authors and recognitions:
 Jing Lu
 Sofiane Chouioukh
 Rodrigue Mpouam Eba
+
+Reference:
+https://coderslegacy.com/python/pygame-rpg-game-tutorial/
