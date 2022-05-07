@@ -1,6 +1,4 @@
-# game-project
-Name:
-Dungeon Game
+# Dungeon Game
 
 Description:
 Dungeon Game is an adventure game, it has 3 levels. The first level has the minimum enemies and the third level has the maximum enemies. The player have to kill all the enemies in each level to win the game.
