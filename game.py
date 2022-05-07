@@ -9,6 +9,7 @@ class Game:
     level1()
     level2()
     level3()
+    create_enemy()
     event_handle()
     update_scene()
     respawn()
@@ -22,7 +23,7 @@ class Player:
 
 class Enemy:
     move()
-    collide()
+    collide_check()
     update()
 
 class Healthbar
@@ -30,6 +31,7 @@ class Background
 """
 
 import random
+from matplotlib.pyplot import get
 import pygame
 from pygame import *
 from tkinter import *
@@ -96,10 +98,10 @@ class Player(pygame.sprite.Sprite):
         self.direction = True
         self.moving = True
         self.attacking = False
-        self.move_frame = 0
-        self.attack_frame = 0
+        self.move_idx = 0
+        self.attack_idx = 0
         self.health = 5
-        self.collidepause = False
+        self.start_time = pygame.time.get_ticks()
 
     def get_pos(self):
         # calculate the velocity
@@ -114,19 +116,19 @@ class Player(pygame.sprite.Sprite):
             self.position.x = 0
 
     def move(self):
-        # if move_frame out of range, restart it from 0
-        if self.move_frame > 6:
-            self.move_frame = 0
+        # if move_idx out of range, restart it from 0
+        if self.move_idx > 6:
+            self.move_idx = 0
             
         # if player has some extent velocity, change the image as running images
         if self.velocity.x > 1:
-            self.image = self.move_ani_R[self.move_frame]
+            self.image = self.move_ani_R[self.move_idx]
             self.direction = True
-            self.move_frame += 1
+            self.move_idx += 1
         elif self.velocity.x < -1:
-            self.image = self.move_ani_L[self.move_frame]
+            self.image = self.move_ani_L[self.move_idx]
             self.direction = False
-            self.move_frame += 1
+            self.move_idx += 1
         else:
             if self.direction:
                 self.image = self.move_ani_R[0]
@@ -134,24 +136,22 @@ class Player(pygame.sprite.Sprite):
                 self.image = self.move_ani_L[0]
 
     def attack(self):
-        # restart the attack_frame number if it is out of range
-        if self.attack_frame > 10:
-            self.attack_frame = 0
+        # restart the attack_idx number if it is out of range
+        if self.attack_idx > 10:
+            self.attack_idx = 0
             self.attacking = False
         # check direction for right display
         if self.direction:
-            self.image = self.attack_ani_R[self.attack_frame]
+            self.image = self.attack_ani_R[self.attack_idx]
         else:
-            self.image = self.attack_ani_L[self.attack_frame]
-        self.attack_frame += 1
+            self.image = self.attack_ani_L[self.attack_idx]
+        self.attack_idx += 1
     
-    def collide_check(self, g): 
-        # line 151 to 154 taken from https://coderslegacy.com/python/pygame-rpg-collision-detection/
-        # to avoid collide continually, set pausecollide switch, allow detect collide after 1 second
-        if self.collidepause == False:
-            self.collidepause = True
+    def health_check(self, g): 
+        # allow decrease health after 1 second
+        if pygame.time.get_ticks() - self.start_time > 1000:
             self.health -= 1
-            pygame.time.set_timer(g.collidepause_event, 1000)
+            self.start_time = pygame.time.get_ticks()
 
         # after losing all the health, kill the player, redraw game sprites, 
         # update dispaly, wait 2s then call the gameover menu
@@ -180,6 +180,9 @@ class Enemy(pygame.sprite.Sprite):
             self.position = Vector2(W-30, 300)
         else:
             self.position = Vector2(0, 300)
+        self.start_time = pygame.time.get_ticks()
+        self.delay = 1000
+        self.end_time = 0
 
     def move(self):
         # calculate the position according to the direction
@@ -198,14 +201,14 @@ class Enemy(pygame.sprite.Sprite):
     def collide_check(self, g):
 
         # check if collide
-        collide = pygame.sprite.collide_rect(self, g.player)
-        if collide :
+        collide = pygame.sprite.spritecollide(self, g.playergroup, False)
+        if collide:
         # when player is attacking and collide, kill enemy, otherwise decrease player's health
             if g.player.attacking == True:
                 self.kill()
                 g.dead_enemy_count += 1
             else:
-                g.player.collide_check(g)
+                g.player.health_check(g)
 
         # if all the enemies are dead, call gamewin menu
         if g.dead_enemy_count == g.enemy_num:
@@ -214,8 +217,8 @@ class Enemy(pygame.sprite.Sprite):
             menu.gamewin_menu()
 
     def update(self):
-        self.collide_check(menu.game)
         self.move()
+        self.collide_check(menu.game)
 
 # class Game, to handle all the sprites instances and events, set 3 levels and update all
 class Game:
@@ -229,18 +232,25 @@ class Game:
         self.background = Background()
         self.sprites.add(self.background, self.player, self.healthbar)
         self.run_game = True
-        self.enemycreate_event = pygame.USEREVENT + 1
-        self.collidepause_event = pygame.USEREVENT + 2
+        self.start_time = pygame.time.get_ticks()
     
     # initial the game window and keep running the scene updates
     def start_game(self):
         self.surface = pygame.display.set_mode((W, H))
         while self.run_game:
             self.update_scene()
+    
+    def create_enemy(self):
+        if pygame.time.get_ticks() - self.start_time > 1000:
+            if self.enemy_count < self.enemy_num:
+                self.sprites.add(Enemy())
+                self.enemy_count += 1
+                self.start_time = pygame.time.get_ticks()
 
     # draw the sprites, call all the sprites update methods, update events handle
     def update_scene(self):
         self.clock.tick(60)
+        self.create_enemy()
         self.event_handle()
         self.sprites.draw(self.surface)
         self.sprites.update()
@@ -252,29 +262,19 @@ class Game:
             # press window close button, quit game
             if event.type == pygame.QUIT:
                 self.run_game = False
-            if event.type == KEYDOWN:
 
-                # line 259 to 262 taken from https://coderslegacy.com/python/pygame-rpg-attack-animations/
+            if event.type == KEYDOWN:
                 # press key A to perform player attack
                 if event.key == pygame.K_a:
                     if not self.player.attacking:
                         self.player.attack()
                         self.player.attacking = True
 
+                # press right left arrow key to move player
                 if event.key == pygame.K_RIGHT:
                     self.player.velocity.x = 3
                 elif event.key == pygame.K_LEFT:
                     self.player.velocity.x = -3
-
-            # in every second check enemycreate event, then instanciate enemy
-            if event.type == self.enemycreate_event:
-                if self.enemy_count < self.enemy_num:
-                    self.sprites.add(Enemy())
-                    self.enemy_count += 1
-
-            # avoid collide continually
-            if event.type == self.collidepause_event:
-                self.player.collidepause = False
     
     # have to kill all the sprites in the precedent level, then add sprites for next level, also reset healthbar
     def respawn(self):
@@ -288,7 +288,6 @@ class Game:
     # when called, destroy tkinter menu, set enemycreate interval, set level 1 initial values
     def level1(self):
         menu.root.destroy()        
-        pygame.time.set_timer(self.enemycreate_event, 1000)
         self.background.image = pygame.image.load("background/background.jpg")
         self.level = 1
         self.enemy_num = 8
@@ -298,7 +297,6 @@ class Game:
     # when called, destroy tkinter menu, set enemycreate interval, set level 2 initial values
     def level2(self):
         menu.root.destroy()
-        pygame.time.set_timer(self.enemycreate_event, 800)
         self.background.image = pygame.image.load("background/desert.jpg")
         self.level = 2
         self.enemy_num = 12
@@ -308,7 +306,6 @@ class Game:
     # when called, destroy tkinter menu, set enemycreate interval, set level 2 initial values
     def level3(self):
         menu.root.destroy()
-        pygame.time.set_timer(self.enemycreate_event, 600)
         self.background.image = pygame.image.load("background/dark.jpg")
         self.level = 3
         self.enemy_num = 18
@@ -361,8 +358,6 @@ class Menu:
         self.root.mainloop()
 
     def gameover_menu(self):
-        # in waiting time, pause the enemy create event to avoid create enemy before menu selection
-        pygame.time.set_timer(self.game.enemycreate_event, 0)
         self.tk_init()
         def select():
             self.game.respawn()
@@ -382,8 +377,6 @@ class Menu:
         self.root.mainloop()
 
     def gamewin_menu(self):
-        # in waiting time, pause the enemy create event to avoid create enemy before menu selection
-        pygame.time.set_timer(self.game.enemycreate_event, 0)
         self.tk_init()
         if self.game.level == 3:
             self.game.respawn()
