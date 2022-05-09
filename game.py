@@ -264,10 +264,9 @@ class Game:
                 self.run_game = False
 
             if event.type == KEYDOWN:
-                # press key A to perform player attack
+                # press key A to set player attacking
                 if event.key == pygame.K_a:
                     if not self.player.attacking:
-                        self.player.attack()
                         self.player.attacking = True
 
                 # press right left arrow key to move player
