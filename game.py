@@ -61,9 +61,7 @@ class HealthBar(pygame.sprite.Sprite):
 
 # class Player
 class Player(pygame.sprite.Sprite):
-    # taken from https://coderslegacy.com/python/pygame-rpg-movement-animations/
-    # line 66 to 80 taken close to litteraly
-    # modifed logic afterwards so that ....
+    # line 66 to 88 taken from https://coderslegacy.com/python/pygame-rpg-movement-animations/
     # move animation for the right
     move_ani_R = [pygame.image.load("player/Player_Sprite_R.png"), pygame.image.load("player/Player_Sprite2_R.png"),
                 pygame.image.load("player/Player_Sprite3_R.png"), pygame.image.load("player/Player_Sprite4_R.png"),
@@ -266,8 +264,7 @@ class Game:
             if event.type == KEYDOWN:
                 # press key A to set player attacking
                 if event.key == pygame.K_a:
-                    if not self.player.attacking:
-                        self.player.attacking = True
+                    self.player.attacking = True
 
                 # press right left arrow key to move player
                 if event.key == pygame.K_RIGHT:
