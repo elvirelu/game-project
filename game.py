@@ -31,7 +31,6 @@ class Background
 """
 
 import random
-from matplotlib.pyplot import get
 import pygame
 from pygame import *
 from tkinter import *
@@ -92,8 +91,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("player/Player_Sprite_R.png")
-        self.rect = self.image.get_rect(topleft=(W/2, 310))
-        self.position = Vector2(W/2, 310)
+        self.rect = self.image.get_rect(topleft=(W/2, H-90))
+        self.position = Vector2(W/2, H-90)
         self.velocity = Vector2(0, 0)
         self.direction = True
         self.moving = True
@@ -177,12 +176,10 @@ class Enemy(pygame.sprite.Sprite):
         self.velocity = Vector2(random.randint(1, 2), 0)
         self.direction = random.randint(0, 1)
         if self.direction:
-            self.position = Vector2(W-30, 300)
+            self.position = Vector2(W-30, H-100)
         else:
-            self.position = Vector2(0, 300)
+            self.position = Vector2(0, H-100)
         self.start_time = pygame.time.get_ticks()
-        self.delay = 1000
-        self.end_time = 0
 
     def move(self):
         # calculate the position according to the direction
@@ -199,7 +196,6 @@ class Enemy(pygame.sprite.Sprite):
             self.direction = 1
     
     def collide_check(self, g):
-
         # check if collide
         collide = pygame.sprite.spritecollide(self, g.playergroup, False)
         if collide:
@@ -290,7 +286,7 @@ class Game:
         menu.root.destroy()        
         self.background.image = pygame.image.load("background/background.jpg")
         self.level = 1
-        self.enemy_num = 8
+        self.enemy_num = 5
         self.enemy_count = 0
         self.dead_enemy_count = 0
 
@@ -299,7 +295,7 @@ class Game:
         menu.root.destroy()
         self.background.image = pygame.image.load("background/desert.jpg")
         self.level = 2
-        self.enemy_num = 12
+        self.enemy_num = 10
         self.enemy_count = 0
         self.dead_enemy_count = 0
 
@@ -308,7 +304,7 @@ class Game:
         menu.root.destroy()
         self.background.image = pygame.image.load("background/dark.jpg")
         self.level = 3
-        self.enemy_num = 18
+        self.enemy_num = 15
         self.enemy_count = 0
         self.dead_enemy_count = 0
 
